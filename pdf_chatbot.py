@@ -3,6 +3,7 @@ import openai
 import langchain
 import streamlit as st 
 from PyPDF2 import PdfReader
+from langchain.text_splitter import CharacterTextSplitter
 
 
 from config import OPENAI_API_KEY, HUGGINGFACE_API_KEY
@@ -21,6 +22,15 @@ def get_pdf_text(pdf_docs):
     return text 
 
 
+def get_split_text(text):
+    text_splitter = CharacterTextSplitter(separator="\n",
+                                          chunk_size = 1000,
+                                          chunk_overlap=200,
+                                          length_function = len)
+    chunks = text_splitter.split_text(text)
+    return chunks 
+
+
 
 def main():
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
@@ -36,11 +46,13 @@ def main():
 
             #extract the pdf texts
             raw_texts = get_pdf_text(pdf_docs)
-            st.write(raw_texts)
+            # st.write(raw_texts)
 
 
         
-            #create embeddings
+            #create embeddings/text split or text chunk
+            splited_texts = get_split_text(raw_texts)
+            st.write(splited_texts)
 
 
 
