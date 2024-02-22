@@ -4,7 +4,11 @@ import langchain
 import streamlit as st 
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-
+import numpy as np 
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import faiss            #faiss loads the vectors in my system and not on openai's platform
+from langchain_community.vectorstores import FAISS
+from langchain.vectorstores import FAISS
 
 from config import OPENAI_API_KEY, HUGGINGFACE_API_KEY
 
@@ -31,6 +35,13 @@ def get_split_text(text):
     return chunks 
 
 
+def get_vectors(text_chunks):
+    embeddings = OpenAIEmbeddings()
+    vectorstore = FAISS.from_texts(text = text_chunks,embeddings = embeddings)
+
+
+
+
 
 def main():
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
@@ -52,8 +63,12 @@ def main():
         
             #create embeddings/text split or text chunk
             splited_texts = get_split_text(raw_texts)
-            st.write(splited_texts)
+            # st.write(splited_texts)
 
+
+
+            #create vector 
+            vectorization = get_vectors(splited_texts)
 
 
 
