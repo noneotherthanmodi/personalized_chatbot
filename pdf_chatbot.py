@@ -14,8 +14,19 @@ def main():
 
     with st.sidebar:
         st.subheader("Your documents: ")
-        st.file_uploader("Upload your file here and click on 'Process'.")
+        st.file_uploader("Upload your file here and click on 'Process'.",accept_multiple_files = True)
         st.button("Process")
+
+        st.spinner("Loading your data...")
+
+            #extract the pdf texts
+
+
+
+        
+            #create embeddings
+
+
 
 
 if __name__ == "__main__":
