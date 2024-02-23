@@ -1,31 +1,19 @@
-
 import openai 
 from dotenv import load_dotenv
-
 import streamlit as st 
 from PyPDF2 import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
-import numpy as np 
+from langchain.text_splitter import CharacterTextSplitter 
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-
-# from langchain.vectorstores import faiss
-
-            #faiss loads the vectors in my system and not on openai's platform
-
 from langchain_community.vectorstores import FAISS
 from langchain_community.vectorstores import Annoy 
 from config import OPENAI_API_KEY, HUGGINGFACE_API_KEY
 
+from langchain_openai import ChatOpenAI 
+from langchain.memory import ConversationBufferMemory 
+from langchain.chains import ConversationalRetrievalChain
+
 openai.api_key = OPENAI_API_KEY
-
-
-import os
-# Uncomment the following line if you need to initialize FAISS with no AVX2 optimization
-# os.environ['FAISS_NO_AVX2'] = '1'
-# from langchain_community.vectorstores import FAISS 
-
-
 
 
 
@@ -57,12 +45,27 @@ def get_vectors(text_chunks):
     return vectorstore
 
 
+def get_conversations(vectorscore):
+    llm = ChatOpenAI()
+    memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
+    conversation = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=vectorscore.as_retriever(),
+        memory = memory)
+    return conversation 
+
+
 
 
 
 def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
+
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None 
+
+
     st.header("Chat with multiple pdfs :books:")
     st.text_input("Ask any question about your pdf: ")
 
@@ -88,6 +91,12 @@ def main():
             #create vector 
             vectorization = get_vectors(text_chunks)
 
+
+
+            #create lang chains for conversation
+            st.session_state.conversation = get_conversations(vectorization)
+
+    
 
 
 if __name__ == "__main__":
