@@ -1,18 +1,33 @@
-import pandas as pd 
+
 import openai 
-import langchain
+from dotenv import load_dotenv
+
 import streamlit as st 
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 import numpy as np 
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import faiss            #faiss loads the vectors in my system and not on openai's platform
-from langchain_community.vectorstores import FAISS
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 
+# from langchain.vectorstores import faiss
+
+            #faiss loads the vectors in my system and not on openai's platform
+
+from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Annoy 
 from config import OPENAI_API_KEY, HUGGINGFACE_API_KEY
 
 openai.api_key = OPENAI_API_KEY
+
+
+import os
+# Uncomment the following line if you need to initialize FAISS with no AVX2 optimization
+# os.environ['FAISS_NO_AVX2'] = '1'
+# from langchain_community.vectorstores import FAISS 
+
+
+
+
 
 
 
@@ -36,14 +51,17 @@ def get_split_text(text):
 
 
 def get_vectors(text_chunks):
-    embeddings = OpenAIEmbeddings()
-    vectorstore = FAISS.from_texts(text = text_chunks,embeddings = embeddings)
+    embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+    # embeddings = HuggingFaceInstructEmbeddings(model_name = "hkunlp/instructor-xl")
+    vectorstore = Annoy.from_texts(texts=text_chunks, embedding=embeddings)
+    return vectorstore
 
 
 
 
 
 def main():
+    load_dotenv()
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
     st.header("Chat with multiple pdfs :books:")
     st.text_input("Ask any question about your pdf: ")
@@ -62,13 +80,13 @@ def main():
 
         
             #create embeddings/text split or text chunk
-            splited_texts = get_split_text(raw_texts)
+            text_chunks = get_split_text(raw_texts)
             # st.write(splited_texts)
 
 
 
             #create vector 
-            vectorization = get_vectors(splited_texts)
+            vectorization = get_vectors(text_chunks)
 
 
 
