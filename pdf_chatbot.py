@@ -16,6 +16,7 @@ from langchain.chains import ConversationalRetrievalChain
 
 openai.api_key = OPENAI_API_KEY
 
+from htmlTemp import css,bot_template,user_template
 
 
 
@@ -52,22 +53,24 @@ def get_vectors(text_chunks):
     return vectorstore
 
 
-def get_conversations(vectorscore):
-    llm = ChatOpenAI(api_key=OPENAI_API_KEY)
+def get_conversation_chain(vectorscore):
+    llm = ChatOpenAI()
     memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
-    conversation = ConversationalRetrievalChain.from_llm(
+    conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vectorscore.as_retriever(),
         memory = memory)
-    return conversation 
+    return conversation_chain
 
-
+ 
 
 
 
 def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
+    st.write(css,unsafe_allow_html=True)
+
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None 
@@ -75,6 +78,11 @@ def main():
 
     st.header("Chat with multiple pdfs :books:")
     st.text_input("Ask any question about your pdf: ")
+
+    st.write(user_template.replace("{{MSG}}","Hello Future!"),unsafe_allow_html=True)
+    st.write(bot_template.replace("{{MSG}}","Hello Human!"),unsafe_allow_html=True)
+
+
 
     with st.sidebar:
         st.subheader("Your documents: ")
@@ -101,7 +109,7 @@ def main():
 
 
                 #create lang chains for conversation
-                st.session_state.conversation = get_conversations(vectorization)
+                st.session_state.conversation = get_conversation_chain(vectorization)
 
     
 
