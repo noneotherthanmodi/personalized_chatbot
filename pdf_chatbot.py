@@ -54,7 +54,7 @@ def get_vectors(text_chunks):
 
 
 def get_conversation_chain(vectorscore):
-    llm = ChatOpenAI()
+    llm = ChatOpenAI(api_key=OPENAI_API_KEY)
     memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -63,6 +63,10 @@ def get_conversation_chain(vectorscore):
     return conversation_chain
 
  
+def handle_userinput(user_question):
+    response = st.session_state.conversation({'question': user_question})
+    st.write(response)
+
 
 
 
@@ -77,7 +81,9 @@ def main():
 
 
     st.header("Chat with multiple pdfs :books:")
-    st.text_input("Ask any question about your pdf: ")
+    user_question = st.text_input("Ask any question about your pdf: ")
+    if user_question:
+        handle_userinput(user_question)
 
     st.write(user_template.replace("{{MSG}}","Hello Future!"),unsafe_allow_html=True)
     st.write(bot_template.replace("{{MSG}}","Hello Human!"),unsafe_allow_html=True)
