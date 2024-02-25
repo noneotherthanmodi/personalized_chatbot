@@ -41,12 +41,11 @@ def get_split_text(text):
 
 def get_vectors(text_chunks):
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-    
-    # embeddings = HuggingFaceInstructEmbeddings(model_name = "hkunlp/instructor-xl")
     # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
-    print(f"Number of text chunks: {len(text_chunks)}")
-    if text_chunks:
-        print(f"Length of the first text chunk: {len(text_chunks[0])}")
+    
+    # print(f"Number of text chunks: {len(text_chunks)}")
+    # if text_chunks:
+    #     print(f"Length of the first text chunk: {len(text_chunks[0])}")
 
 
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
@@ -54,7 +53,7 @@ def get_vectors(text_chunks):
 
 
 def get_conversations(vectorscore):
-    llm = ChatOpenAI()
+    llm = ChatOpenAI(api_key=OPENAI_API_KEY)
     memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
     conversation = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -70,8 +69,8 @@ def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
 
-    # if "conversation" not in st.session_state:
-    #     st.session_state.conversation = None 
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None 
 
 
     st.header("Chat with multiple pdfs :books:")
@@ -102,7 +101,7 @@ def main():
 
 
                 #create lang chains for conversation
-                # st.session_state.conversation = get_conversations(vectorization)
+                st.session_state.conversation = get_conversations(vectorization)
 
     
 
