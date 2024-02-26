@@ -53,12 +53,12 @@ def get_vectors(text_chunks):
     return vectorstore
 
 
-def get_conversation_chain(vectorscore):
-    llm = ChatOpenAI(api_key=OPENAI_API_KEY)
+def get_conversation_chain(vectorstore):
+    llm = ChatOpenAI(api_key=OPENAI_API_KEY,model="gpt-3.5-turbo",temperature=0)
     memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
-        retriever=vectorscore.as_retriever(),
+        retriever=vectorstore.as_retriever(),
         memory = memory)
     return conversation_chain
 
@@ -78,7 +78,8 @@ def main():
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None 
-
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = None
 
     st.header("Chat with multiple pdfs :books:")
     user_question = st.text_input("Ask any question about your pdf: ")
@@ -110,12 +111,12 @@ def main():
 
 
                 #create vector 
-                vectorization = get_vectors(text_chunks)
+                vectorstore = get_vectors(text_chunks)
 
 
 
                 #create lang chains for conversation
-                st.session_state.conversation = get_conversation_chain(vectorization)
+                st.session_state.conversation = get_conversation_chain(vectorstore)
 
     
 
