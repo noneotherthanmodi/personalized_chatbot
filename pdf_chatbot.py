@@ -13,6 +13,8 @@ from langchain.vectorstores import FAISS
 from langchain_openai import ChatOpenAI 
 from langchain.memory import ConversationBufferMemory 
 from langchain.chains import ConversationalRetrievalChain
+from langchain.llms import HuggingFaceHub
+
 
 openai.api_key = OPENAI_API_KEY
 
@@ -55,6 +57,7 @@ def get_vectors(text_chunks):
 
 def get_conversation_chain(vectorstore):
     llm = ChatOpenAI(api_key=OPENAI_API_KEY)
+
     memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -75,7 +78,7 @@ def handle_userinput(user_question):
 
 
 def main():
-    load_dotenv()
+    # load_dotenv()
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
     st.write(css,unsafe_allow_html=True)
 
