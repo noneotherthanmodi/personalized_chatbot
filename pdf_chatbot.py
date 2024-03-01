@@ -20,7 +20,8 @@ openai.api_key = OPENAI_API_KEY
 
 from htmlTemp import css,bot_template,user_template
 
-
+import os 
+os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
 
 
 def get_pdf_text(pdf_docs):
@@ -59,6 +60,7 @@ def get_conversation_chain(vectorstore):
     llm = ChatOpenAI(api_key=OPENAI_API_KEY)
 
     memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
+    
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vectorstore.as_retriever(),
