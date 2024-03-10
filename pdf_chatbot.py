@@ -8,13 +8,16 @@ from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 # from langchain_community.vectorstores import faiss
 # from langchain_community.vectorstores import Annoy 
 from config import OPENAI_API_KEY, HUGGINGFACE_API_KEY
-
 from langchain.vectorstores import FAISS
+
 from langchain_openai import ChatOpenAI 
 from langchain.memory import ConversationBufferMemory 
 from langchain.chains import ConversationalRetrievalChain
-from langchain.llms import HuggingFaceHub
+# from langchain.llms import HuggingFaceHub
+# from langchain.vectorstores import Cassandra
+from langchain.memory import ConversationBufferWindowMemory
 
+AstraCS = "ZsIRXUznMKUHqrzPKviWwtRJ:f54dc439cb52de86e5b3610e1850e679fa881a6b2c924536fdd089bb64cbaddf"
 
 openai.api_key = OPENAI_API_KEY
 
@@ -42,14 +45,15 @@ def get_split_text(text):
     chunks = text_splitter.split_text(text)
     return chunks 
 
-
+from sklearn.feature_extraction.text import TfidfVectorizer
 def get_vectors(text_chunks):
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
     # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
     
-    # print(f"Number of text chunks: {len(text_chunks)}")
-    # if text_chunks:
-    #     print(f"Length of the first text chunk: {len(text_chunks[0])}")
+    print(f"Number of text chunks: {len(text_chunks)}")
+    if text_chunks:
+        print(f"Length of the first text chunk: {len(text_chunks[0])}")
+
 
 
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
@@ -57,9 +61,9 @@ def get_vectors(text_chunks):
 
 
 def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI(api_key=OPENAI_API_KEY)
-
-    memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
+    llm = ChatOpenAI(api_key=OPENAI_API_KEY,model='gpt-3.5-turbo-1106',temperature=0.2)
+    memory = ConversationBufferWindowMemory(k=1,memory_key='chat_history',return_messages=True)
+    # memory = ConversationBufferMemory(memory_key='chat_history',return_messages=True)
     
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -67,7 +71,7 @@ def get_conversation_chain(vectorstore):
         memory = memory)
     return conversation_chain
 
- 
+
 def handle_userinput(user_question):
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
@@ -80,7 +84,7 @@ def handle_userinput(user_question):
 
 
 def main():
-    # load_dotenv()
+    load_dotenv()
     st.set_page_config(page_title="Chat with multiple pdfs",page_icon=":books:")
     st.write(css,unsafe_allow_html=True)
 
