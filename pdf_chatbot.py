@@ -9,15 +9,14 @@ from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 # from langchain_community.vectorstores import Annoy 
 from config import OPENAI_API_KEY, HUGGINGFACE_API_KEY
 from langchain.vectorstores import FAISS
-
 from langchain_openai import ChatOpenAI 
 from langchain.memory import ConversationBufferMemory 
 from langchain.chains import ConversationalRetrievalChain
 # from langchain.llms import HuggingFaceHub
 # from langchain.vectorstores import Cassandra
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_community.vectorstores.chroma import Chroma 
 
-AstraCS = "ZsIRXUznMKUHqrzPKviWwtRJ:f54dc439cb52de86e5b3610e1850e679fa881a6b2c924536fdd089bb64cbaddf"
 
 openai.api_key = OPENAI_API_KEY
 
@@ -45,7 +44,6 @@ def get_split_text(text):
     chunks = text_splitter.split_text(text)
     return chunks 
 
-from sklearn.feature_extraction.text import TfidfVectorizer
 def get_vectors(text_chunks):
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
     # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
